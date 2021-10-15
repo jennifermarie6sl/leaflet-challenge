@@ -1,0 +1,27 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+#mapid,
+body,
+html {
+  height: 100%;
+  width: 100%;
+}
+
+.legend {
+  padding: 10px;
+  line-height: 28px;
+  color: #555;
+  background-color: #fff;
+  border-radius: 5px;
+}
+/* magnitude color from green to red */
+.legend i {
+  float: left;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  opacity: 0.7;
+}
