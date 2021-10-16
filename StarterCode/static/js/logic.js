@@ -11,30 +11,30 @@
 // // SatMap.addTo(myMap)
 // .addTo(myMap);
 
-var satMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/ckulhx10w20rw17s7mxq4nvya/{z}/{x}/{y}?access_token={accessToken}", {
+var grayMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/{style_id}/tiles/{tilesize}/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tileSize: 512,
+    tilesize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    id: "mapbox/streets-v9",
+    style_id: "mapbox.mapbox-terrain-v2",
     accessToken: API_KEY
 });
 
-var grayMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/ckuli2tdi4f0817qxfqtc5031/{z}/{x}/{y}?access_token={accessToken}", {
+var satMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/{style_id}/tiles/{tilesize}/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tileSize: 512,
+    tilesize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    id: "mapbox/streets-v10",
+    style_id: "mapbox.satellite", 
     accessToken: API_KEY
 });
 
-var outdoorMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/ckulhx10w20rw17s7mxq4nvya/{z}/{x}/{y}?access_token={accessToken}", {
+var outdoorMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/{style_id}/tiles/{tilesize}/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tileSize: 512,
+    tilesize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    id: "mapbox/streets-v11",
+    style_id: "mapbox.country-boundaries-v1",
     accessToken: API_KEY
 });
 
@@ -44,7 +44,7 @@ var myMap = L.map("mapid", {
     37.09, -95.71
   ],
   zoom: 3,
-  layers: [satMap, grayMap, outdoorMap],
+  layers: [satMap, outdoorMap, grayMap],
 });
 
 // Create baseMaps object for the corner.
@@ -71,7 +71,6 @@ L.control.layers(baseMaps, overlayMaps, {
 
 // Store our API endpoint as queryUrl.
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
-var platesUrl = "https://github.com/fraxen/tectonicplates/blob/master/original/PB2002_boundaries.dig.txt"
 
 // Perform a GET request to the query URL/
 d3.json(queryUrl, function (data) {
@@ -90,8 +89,8 @@ d3.json(queryUrl, function (data) {
     var location = [features[i].geometry.coordinates[1], features[i].geometry.coordinates[0]];
     var depth = features[i].geometry.coordinates[2];
     var magnitude = features[i].properties.mag;
+    
     var color = "";
-
     // Start from highest number and go down.
     if (depth > 90) {
       color = "#E62817";
@@ -118,56 +117,50 @@ d3.json(queryUrl, function (data) {
       color: "white",
       fillColor: color,
       
-      // Adjust the radius.
+      // Adjust the radius and add to the Earthquakes overlay object.
       radius: magnitude * 20000
-    }).bindPopup("<h1>" + features[i].properties.place + "</h2> <hr> <h3>Points: " + features[i].properties.mag + "</h3>").addTo(myMap);
+    }).bindPopup("<h1>" + features[i].properties.place + "</h2> <hr> <h3>Points: " + features[i].properties.mag + "</h3>").addTo(Earthquakes);
+    
+    Earthquakes.addTo(myMap)
   };
 
-// function createFeatures(earthquakeData) {
-//     // Create a GeoJSON layer that contains the features array on the earthquakeData object.
-//     // Run the onEachFeature function once for each piece of data in the array.
-//     var earthquakes = L.geoJSON(earthquakeData, {
-//         onEachFeature: onEachFeature
-//     });
+  var platesUrl = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json"
 
-//   // Define a function that we want to run once for each feature in the features array.
-//   // Give each feature a popup that describes the place and time of the earthquake.
-//   function onEachFeature(feature, layer) {
-//     layer.bindPopup(`<h3>Magnitude: ${feature.properties.mag}</h3><hr><p>${new Location: (feature.properties.place)}</p>`</h3><hr><p>${new Date(feature.properties.time)}</p>`);
-//   };
-// };
+// Perform a GET request to the query URL/
+  d3.json(platesUrl, function (platedata) {
+    // Adding our geoJSON data, along with style information, to the tectonicplates layer.
+    L.geoJson(platedata, {
+      color: "orange",
+      weight: 2
+    }).addTo(tectonicPlates);
 
-// function createMap(earthquakes) {
+    // Add the tectonicplates layer to the map.
+    tectonicPlates.addTo(myMap);
+  });
 
+// Set up the legend and add legend to the map.
+var legend = L.control({ position: "bottomright" });
 
-// Set up the legend.  WORKS
-var legend = L.control({
-  position: "bottomright"
-});
-legend.onAdd = function () {
-  var div = L.DomUtil.create("div", "info legend");
-  var grades = [-10, 10, 30, 50, 70, 90];
-  var colors = [
-      "#98EE00",
+  legend.onAdd = function () {
+    var div = L.DomUtil.create("div", "info legend");
+
+    var limits = [-10, 10, 30, 50, 70, 90];
+    var colors = [
       "#D4EE00",
-      "#EECC00",
-      "#EE9C00",
-      "#EA822C",
+      "#17E6DF",
+      "#78E617",
+      "#E6CA17",
+      "#E66317",
       "#E62817"
-  ];
-  // Looping through our intervals to generate a label with a colored square for each interval.
-  for (var i = 0; i < grades.length; i++) {
-      div.innerHTML += "<i style='background: " + colors[i] + "'></i> "
-          + grades[i] + (grades[i + 1] ? "&ndash;" + grades[i + 1] + "<br>" : "+");
-  }
-  return div;
-};
-// Finally, we our legend to the map.
-legend.addTo(myMap);
+    ];
+
+    for (var i = 0; i < limits.length; i++) {
+      div.innerHTML += "<i style= 'background:" + colors[i] + "'></i> "
+        + limits[i] + (limits[i + 1] ? "&ndash;" + limits[i + 1] + "<br>" : "+");
+    }
+    return div;
+  };
+  // Adding the legend to the map
+  legend.addTo(myMap);
 
 });
-
-// TO DO:
-// Plot the tectonic data
-// Give buttons access to control plotted data
-// 
