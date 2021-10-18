@@ -1,42 +1,38 @@
-// var satMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//   attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-// });
-// var grayMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//   attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-// });
-// var outdoorMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//   attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-// });
-// outdoorMap.addTo(myMap)
-// // SatMap.addTo(myMap)
-// .addTo(myMap);
-
-var grayMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/{style_id}/tiles/{tilesize}/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tilesize: 512,
+var terrain = L.tileLayer(
+  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+  {
+    attribution:
+      "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    style_id: "mapbox.mapbox-terrain-v2",
+    id: "mapbox/streets-v9",
     accessToken: API_KEY
-});
+  });
 
-var satMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/{style_id}/tiles/{tilesize}/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tilesize: 512,
+ var outdoors = L.tileLayer(
+  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+  {
+    attribution:
+      "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    style_id: "mapbox.satellite", 
+    id: "mapbox/outdoors-v11",
     accessToken: API_KEY
-});
+  });
 
-var outdoorMap= L.tileLayer("https://api.mapbox.com/styles/v1/jennifermarie6sl/{style_id}/tiles/{tilesize}/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tilesize: 512,
+ var satellite = L.tileLayer(
+  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+  {
+    attribution:
+      "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    style_id: "mapbox.country-boundaries-v1",
+    id: "mapbox/light-v10",
     accessToken: API_KEY
-});
+  });
 
 // Create our map, giving it the streetmap and earthquakes layers to display on load.
 var myMap = L.map("mapid", {
@@ -44,14 +40,16 @@ var myMap = L.map("mapid", {
     37.09, -95.71
   ],
   zoom: 3,
-  layers: [satMap, outdoorMap, grayMap],
+  layers: [terrain,outdoors,satellite],
 });
+
+terrain.addTo(myMap)
 
 // Create baseMaps object for the corner.
 var baseMaps = {
-  "Satellite": satMap,
-  "Grayscale": grayMap,
-  "Outdoors": outdoorMap
+  "Satellite": satellite,
+  "Terrain": terrain,
+  "Outdoors": outdoors
 };
 
 var tectonicPlates = new L.layerGroup();
